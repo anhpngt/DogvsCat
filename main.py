@@ -28,7 +28,7 @@ def conv2d_layer(input, conv_filter_size, num_input_channel, num_filter):
 
 def fc_layer(input, fc_width, fc_height, use_relu=True):
     weight = weight_variable([fc_width, fc_height])
-    bias = bias_variable(fc_height)
+    bias = bias_variable([fc_height])
     out = tf.matmul(input, weight) + bias
     if use_relu == True:
         return tf.nn.relu(out)
@@ -39,6 +39,8 @@ if __name__=='__main__':
     # Import data location
     train_dir = 'train_reduced'
     test_dir = 'test1'
+    
+    print('Loading dataset from ', train_dir)
     dataset = Dataset(train_dir, 0.9, shuffle=True)
     
 #     for i in range(0, dataset.data_size):
@@ -109,25 +111,17 @@ if __name__=='__main__':
     # Train
     print('Training...')
     batch_size = 50
+    feed_dict_val = {x: dataset.valid_x, y_true: dataset.valid_y_}
     for i in range(0, 3000):
-        start_idx = int(20*i);
-        end_idx = int(20*i);
-        x_batch = train_ds[start_idx:end_idx]
-        y_true_batch = train_lb[start_idx:end_idx]
-        feed_dict_tr = {x: x_batch, y_true: y_true_batch}
-        
-        x_valid_batch = validation_ds[start_idx:end_idx]
-        y_true_valid_batch = validation_lb[start_idx:end_idx]
-        feed_dict_val = {x: x_valid_batch, y_true: y_true_valid_batch}
-        
+        batch_x, batch_y_ = dataset.getNextBatch(batch_size)
+        feed_dict_tr = {x: batch_x, y_true: batch_y_}
         session.run(optimizer, feed_dict=feed_dict_tr)
         
         if i % 100 == 0:
-            val_loss = session.run(cost, feed_dict=feed_dict_val)
             saver.save(session, 'dogvscat_model')
             
             acc = session.run(accuracy, feed_dict=feed_dict_tr)
             acc_val = session.run(accuracy, feed_dict=feed_dict_val)
-            
+            val_loss = session.run(cost, feed_dict=feed_dict_val)
             print('Epoch ', i / 100, '\t-- Training accuracy: ', acc, '\t-- Validation accuracy: ', acc_val,
                   '\t-- Validation loss: ', val_loss)
