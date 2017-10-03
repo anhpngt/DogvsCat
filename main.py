@@ -40,8 +40,8 @@ if __name__=='__main__':
     train_dir = 'train_reduced'
     test_dir = 'test1'
     
-    print('Loading dataset from ', train_dir)
-    dataset = Dataset(train_dir, 0.9, shuffle=True)
+    print('Loading dataset from', train_dir)
+    dataset = Dataset(train_dir, 0.99, shuffle=True)
     
 #     for i in range(0, dataset.data_size):
 #         img = dataset.train_x[i]
@@ -110,15 +110,16 @@ if __name__=='__main__':
     
     # Train
     print('Training...')
-    batch_size = 50
+    batch_size = 5
     feed_dict_val = {x: dataset.valid_x, y_true: dataset.valid_y_}
-    for i in range(0, 3000):
+    for i in range(1, 10000):
+        print(i)
         batch_x, batch_y_ = dataset.getNextBatch(batch_size)
         feed_dict_tr = {x: batch_x, y_true: batch_y_}
         session.run(optimizer, feed_dict=feed_dict_tr)
         
         if i % 100 == 0:
-            saver.save(session, 'dogvscat_model')
+            saver.save(session, r'C:\Users\Echoes\Desktop\workspace\DogvsCat\model\model', global_step=i)
             
             acc = session.run(accuracy, feed_dict=feed_dict_tr)
             acc_val = session.run(accuracy, feed_dict=feed_dict_val)
