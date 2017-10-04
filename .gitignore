@@ -2,6 +2,7 @@ __pycache__/
 test1/
 train/
 train_reduced/
+model/
 test1.zip
 train.zip
 .project

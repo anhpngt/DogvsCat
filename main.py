@@ -1,8 +1,5 @@
 #!/usr/bin/env python
-from os import listdir
-from os.path import join
-import multiprocessing as mp
-import random
+from __future__ import print_function
 
 # import pandas as pd
 # import matplotlib.pyplot as plt
@@ -113,12 +110,12 @@ if __name__=='__main__':
     batch_size = 5
     feed_dict_val = {x: dataset.valid_x, y_true: dataset.valid_y_}
     for i in range(1, 10000):
-        print(i)
+        print('Iteration:', i, '/10000', end='\r')
         batch_x, batch_y_ = dataset.getNextBatch(batch_size)
         feed_dict_tr = {x: batch_x, y_true: batch_y_}
         session.run(optimizer, feed_dict=feed_dict_tr)
         
-        if i % 100 == 0:
+        if i % 200 == 0:
             saver.save(session, r'C:\Users\Echoes\Desktop\workspace\DogvsCat\model\model', global_step=i)
             
             acc = session.run(accuracy, feed_dict=feed_dict_tr)
@@ -126,3 +123,5 @@ if __name__=='__main__':
             val_loss = session.run(cost, feed_dict=feed_dict_val)
             print('Epoch ', i / 100, '\t-- Training accuracy: ', acc, '\t-- Validation accuracy: ', acc_val,
                   '\t-- Validation loss: ', val_loss)
+            
+    saver.save(session, r'C:\Users\Echoes\Desktop\workspace\DogvsCat\model\model', global_step=i)

@@ -42,7 +42,7 @@ class Dataset(object):
                 processes.append(p)
             for p in processes:
                 p.join()
-            return images[:N], labels[:N], images[N:], labels[:N]
+            return images[:N], labels[:N], images[N:], labels[N:]
     
     def getImage(self, images, labels, index):
         for i in range(index, self.data_size, self.num_processes):
