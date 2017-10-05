@@ -96,7 +96,7 @@ if __name__=='__main__':
     log_file = open('model/log.csv', 'w')
     log_file.write('Epoch, tr_acc, vl_acc, vl_loss\n')
     for i in range(1, 20000):
-        print('Iteration:', i, '/ 10000 ... ', end='/r')
+        print('Iteration:', i, '/ 10000 ... ', end='\r')
         batch_x, batch_y_ = dataset.getNextBatch(batch_size)
         feed_dict_tr = {x: batch_x, y_true: batch_y_}
         session.run(optimizer, feed_dict=feed_dict_tr)
