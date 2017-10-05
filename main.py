@@ -1,10 +1,7 @@
 #!/usr/bin/env python
-from __future__ import print_function
+# from __future__ import print_function
+from sys import stdout
 
-# import pandas as pd
-# import matplotlib.pyplot as plt
-# import seaborn as sns
-import cv2
 import numpy as np
 import tensorflow as tf
 
@@ -34,24 +31,11 @@ def fc_layer(input, fc_width, fc_height, use_relu=True):
     
 if __name__=='__main__':
     # Import data location
-    train_dir = 'train_reduced'
-    test_dir = 'test1'
+    train_dir = 'train'
     
     print('Loading dataset from', train_dir)
-    dataset = Dataset(train_dir, 0.99, shuffle=True)
-    
-#     for i in range(0, dataset.data_size):
-#         img = dataset.train_x[i]
-#         print('label: ', dataset.train_y_[i])
-#         cv2.imshow('img', img)
-#           
-#         # break
-#         key = cv2.waitKey(-1) & 0xFF
-#         if key == ord('q'):
-#             break
-#         elif key == ord('p'):
-#             cv2.waitKey(0)    
-    
+    dataset = Dataset(train_dir, 0.996, shuffle=True)
+
     # Layer network
     print('Creating network...')
     session = tf.Session()
@@ -107,10 +91,12 @@ if __name__=='__main__':
     
     # Train
     print('Training...')
-    batch_size = 5
+    batch_size = 10
     feed_dict_val = {x: dataset.valid_x, y_true: dataset.valid_y_}
-    for i in range(1, 10000):
-        print('Iteration:', i, '/10000', end='\r')
+    log_file = open('model/log.csv', 'w')
+    log_file.write('Epoch, tr_acc, vl_acc, vl_loss\n')
+    for i in range(1, 20000):
+        print('Iteration:', i, '/ 10000 ... ', end='/r')
         batch_x, batch_y_ = dataset.getNextBatch(batch_size)
         feed_dict_tr = {x: batch_x, y_true: batch_y_}
         session.run(optimizer, feed_dict=feed_dict_tr)
@@ -118,10 +104,11 @@ if __name__=='__main__':
         if i % 200 == 0:
             saver.save(session, r'C:\Users\Echoes\Desktop\workspace\DogvsCat\model\model', global_step=i)
             
+            epoch = int(i/200)
             acc = session.run(accuracy, feed_dict=feed_dict_tr)
             acc_val = session.run(accuracy, feed_dict=feed_dict_val)
             val_loss = session.run(cost, feed_dict=feed_dict_val)
-            print('Epoch ', i / 100, '\t-- Training accuracy: ', acc, '\t-- Validation accuracy: ', acc_val,
-                  '\t-- Validation loss: ', val_loss)
+            print('Epoch ', epoch, '-- Training accuracy: ', acc, '-- Validation accuracy: ', acc_val, '-- Validation loss: ', val_loss)
+            log_file.write(epoch, ',', acc, ',', acc_val, ',', val_loss, '\n')
             
     saver.save(session, r'C:\Users\Echoes\Desktop\workspace\DogvsCat\model\model', global_step=i)
