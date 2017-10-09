@@ -1,6 +1,5 @@
 #!/usr/bin/env python
 # from __future__ import print_function
-from sys import stdout
 
 import numpy as np
 import tensorflow as tf
@@ -32,6 +31,7 @@ def fc_layer(input, fc_width, fc_height, use_relu=True):
 if __name__=='__main__':
     # Import data location
     train_dir = 'train'
+    RGB = [0, 0, 0]
     
     print('Loading dataset from', train_dir)
     dataset = Dataset(train_dir, 0.996, shuffle=True)
