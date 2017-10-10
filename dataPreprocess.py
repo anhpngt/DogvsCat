@@ -1,23 +1,24 @@
 from os.path import join
 from os import listdir
+import numpy as np
 import cv2
 
 if __name__=='__main__':
     train_dir = 'train'
     file_names = listdir(train_dir)
-    total = [0, 0, 0]
+    total = np.array([0, 0, 0], dtype=np.int32)
+    number = 0
     for file in file_names:
-        img = cv2.imread(join(train_dir, file))
-        tmp = [0, 0, 0]
-        count = 0
-        for row in img:
-            for pixel in row:
-                tmp += pixel
-                count += 1
+        number += 1
+        img = np.array(cv2.imread(join(train_dir, file)))
+        tmp = np.array([np.sum(img[:,:,0]), np.sum(img[:,:,1]), 
+                        np.sum(img[:,:,2])], dtype=np.int32)
+        count = img.shape[0] * img.shape[1]
+        total = total + tmp
+
+        print('File {}: {}'.format(number, file))
+        # print('Shape: {} x {}'.format((img.shape[0], img.shape[1])))
+        print('{} -------- {}'.format(tmp, count))
+        print('Sum: {}'.format(total))
         
-        total += tmp / count       
-#         print(file)
-#         print(tmp, count, '-------', tmp/count)
-#         print('Sum:', total)
-        
-    print('Average:', total / len(file_names))
+    print('Average: {}'.format(total / len(file_names)))
