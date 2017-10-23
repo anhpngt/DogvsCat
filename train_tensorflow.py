@@ -110,7 +110,7 @@ if __name__=='__main__':
             acc = session.run(accuracy, feed_dict=feed_dict_tr)
             acc_val = session.run(accuracy, feed_dict=feed_dict_val)
             val_loss = session.run(cost, feed_dict=feed_dict_val)
-            print('Epoch ', epoch, '-- Training accuracy: ', acc, '-- Validation accuracy: ', acc_val, '-- Validation loss: ', val_loss)
+            print('Epoch', epoch, '-- Training accuracy:', acc, '-- Validation accuracy:', acc_val, '-- Validation loss:', val_loss)
             log_file.write(str(epoch) + ',' + str(acc) + ',' + str(acc_val) + ',' + str(val_loss) + '\n')
             
     saver.save(session, r'C:\Users\Echoes\Desktop\workspace\DogvsCat\model\model', global_step=i)
