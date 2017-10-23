@@ -25,7 +25,7 @@ class Dataset(object):
             self.list_valid_x = self.file_names[N:]
             
         self.valid_x, self.valid_y_ = self.getData(self.list_valid_x)
-        print(self.valid_x)
+#         print(self.valid_x)
         print('Finished initializing dataset.')
         print('Data folder location:', self.data_folder)
         print('Dataset size:', self.data_size)
