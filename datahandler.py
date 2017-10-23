@@ -10,10 +10,11 @@ import cv2
 class Dataset(object):
     num_processes = 5
     
-    def __init__(self, data_folder, train_portion=0.9, shuffle=True):
+    def __init__(self, data_folder, train_portion=0.9, mean=[0., 0., 0.], shuffle=True):
         self.data_folder = data_folder
         self.file_names = listdir(data_folder)
         self.data_size = len(self.file_names)
+        self.mean = mean
         self.training_size = int(self.data_size*train_portion) # size of train set, the rest is validation set
         self.batch_pos = 0  # Position to get batch
         if shuffle == True:
@@ -24,7 +25,7 @@ class Dataset(object):
             self.list_valid_x = self.file_names[N:]
             
         self.valid_x, self.valid_y_ = self.getData(self.list_valid_x)
-        
+        print(self.valid_x)
         print('Finished initializing dataset.')
         print('Data folder location:', self.data_folder)
         print('Dataset size:', self.data_size)
@@ -61,7 +62,8 @@ class Dataset(object):
             current_file_name = images_list[i]
             src = cv2.imread(join(self.data_folder, current_file_name))
             out_img = cv2.resize(src, (224, 224))
-            images.append(out_img)
+            
+            images.append(list(out_img))
             if current_file_name[0:3] == 'cat':
                 labels.append([1, 0])
             elif current_file_name[0:3] == 'dog':

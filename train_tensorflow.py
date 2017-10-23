@@ -3,6 +3,7 @@
 
 import numpy as np
 import tensorflow as tf
+import matplotlib.pyplot as plt
 
 from datahandler import Dataset
 
@@ -12,17 +13,17 @@ def weight_variable(shape):
 def bias_variable(shape):
     return tf.Variable(tf.constant(0.05, dtype=tf.float32, shape=shape))
 
-def conv2d_layer(input, conv_filter_size, num_input_channel, num_filter):
+def conv2d_layer(input_matrix, conv_filter_size, num_input_channel, num_filter):
     weight = weight_variable([conv_filter_size, conv_filter_size, num_input_channel, num_filter])
     bias = bias_variable([num_filter])
-    conv = tf.nn.conv2d(input, weight, [1, 1, 1, 1], padding='SAME') + bias
+    conv = tf.nn.conv2d(input_matrix, weight, [1, 1, 1, 1], padding='SAME') + bias
     out = tf.nn.relu(conv)
     return out
 
-def fc_layer(input, fc_width, fc_height, use_relu=True):
+def fc_layer(input_matrix, fc_width, fc_height, use_relu=True):
     weight = weight_variable([fc_width, fc_height])
     bias = bias_variable([fc_height])
-    out = tf.matmul(input, weight) + bias
+    out = tf.matmul(input_matrix, weight) + bias
     if use_relu == True:
         return tf.nn.relu(out)
     else: 
@@ -34,7 +35,7 @@ if __name__=='__main__':
     RGB = [105.354, 114.966, 123.656]
     
     print('Loading dataset from', train_dir)
-    dataset = Dataset(train_dir, 0.996, mean=RGB, shuffle=True)
+    dataset = Dataset(train_dir, 0.95, mean=RGB, shuffle=True)
 
     # Layer network
     print('Creating network...')
@@ -71,11 +72,11 @@ if __name__=='__main__':
     fc3 = fc_layer(fc2, 4096, 2, use_relu=False)
     
     y_pred = tf.nn.softmax(fc3, name='y_pred')
-    y_pred_cls = tf.arg_max(y_pred, dimension=1)
+    y_pred_cls = tf.argmax(y_pred, axis=1)
     
     # Prediction
     y_true = tf.placeholder(tf.float32, [None, 2], name='y_true')
-    y_true_cls = tf.arg_max(y_true, dimension=1)
+    y_true_cls = tf.argmax(y_true, axis=1)
     
     # Evaluation
     correct_pred = tf.equal(y_pred_cls, y_true_cls)
@@ -92,6 +93,7 @@ if __name__=='__main__':
     # Train
     print('Training...')
     batch_size = 10
+    epoch_size = 1
     feed_dict_val = {x: dataset.valid_x, y_true: dataset.valid_y_}
     log_file = open('model/log.csv', 'w')
     log_file.write('Epoch, tr_acc, vl_acc, vl_loss\n')
@@ -101,14 +103,14 @@ if __name__=='__main__':
         feed_dict_tr = {x: batch_x, y_true: batch_y_}
         session.run(optimizer, feed_dict=feed_dict_tr)
         
-        if i % 200 == 0:
+        if i % epoch_size == 0:
             saver.save(session, r'C:\Users\Echoes\Desktop\workspace\DogvsCat\model\model', global_step=i)
             
-            epoch = int(i/200)
+            epoch = int(i / epoch_size)
             acc = session.run(accuracy, feed_dict=feed_dict_tr)
             acc_val = session.run(accuracy, feed_dict=feed_dict_val)
             val_loss = session.run(cost, feed_dict=feed_dict_val)
             print('Epoch ', epoch, '-- Training accuracy: ', acc, '-- Validation accuracy: ', acc_val, '-- Validation loss: ', val_loss)
-            log_file.write(epoch, ',', acc, ',', acc_val, ',', val_loss, '\n')
+            log_file.write(str(epoch) + ',' + str(acc) + ',' + str(acc_val) + ',' + str(val_loss) + '\n')
             
     saver.save(session, r'C:\Users\Echoes\Desktop\workspace\DogvsCat\model\model', global_step=i)
