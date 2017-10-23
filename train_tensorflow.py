@@ -30,11 +30,11 @@ def fc_layer(input, fc_width, fc_height, use_relu=True):
     
 if __name__=='__main__':
     # Import data location
-    train_dir = 'train'
-    RGB = [0, 0, 0]
+    train_dir = 'train_reduced'
+    RGB = [105.354, 114.966, 123.656]
     
     print('Loading dataset from', train_dir)
-    dataset = Dataset(train_dir, 0.996, shuffle=True)
+    dataset = Dataset(train_dir, 0.996, mean=RGB, shuffle=True)
 
     # Layer network
     print('Creating network...')
