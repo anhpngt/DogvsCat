@@ -1,6 +1,9 @@
 #!/usr/bin/env python
 # from __future__ import print_function
 
+# Note: in Eclipse, the environment variable CUDA_VISIBLE_DEVICES=""
+# Unset to use GPU
+
 import numpy as np
 import tensorflow as tf
 import matplotlib.pyplot as plt
@@ -31,7 +34,7 @@ def fc_layer(input_matrix, fc_width, fc_height, use_relu=True):
     
 if __name__=='__main__':
     # Import data location
-    train_dir = 'train_reduced'
+    train_dir = 'train'
     RGB = [105.354, 114.966, 123.656]
     
     print('Loading dataset from', train_dir)
@@ -40,6 +43,7 @@ if __name__=='__main__':
     # Layer network
     print('Creating network...')
     session = tf.Session()
+       
     x = tf.placeholder(tf.float32, [None, 224, 224, 3], name='x')
     
     conv1_1 = conv2d_layer(x, 3, 3, 64)
@@ -81,29 +85,40 @@ if __name__=='__main__':
     # Evaluation
     correct_pred = tf.equal(y_pred_cls, y_true_cls)
     accuracy = tf.reduce_mean(tf.cast(correct_pred, tf.float32))
-    
+
     cross_entropy = tf.nn.softmax_cross_entropy_with_logits(logits=fc3, labels=y_true)
     cost = tf.reduce_mean(cross_entropy)
-    
+        
     optimizer = tf.train.AdamOptimizer(learning_rate=1e-4).minimize(cost)
     session.run(tf.global_variables_initializer())
-        
+            
     saver = tf.train.Saver()
+    
+    # Load pre-trained model if available
+    session = tf.InteractiveSession()
+    saver = tf.train.import_meta_graph('model/model-999.meta')
+    checkpoint = tf.train.get_checkpoint_state('model')
+    if checkpoint and checkpoint.model_checkpoint_path:
+        saver.restore(session, checkpoint.model_checkpoint_path)
+        print("Successfully loaded:", checkpoint.model_checkpoint_path)
+    else:
+        print("Could not load model.")
     
     # Train
     print('Training...')
     batch_size = 10
-    epoch_size = 1
+    epoch_size = 100
+    max_iteration = 100000
     feed_dict_val = {x: dataset.valid_x, y_true: dataset.valid_y_}
     log_file = open('model/log.csv', 'w')
     log_file.write('Epoch, tr_acc, vl_acc, vl_loss\n')
-    for i in range(1, 20000):
-        print('Iteration:', i, '/ 10000 ... ', end='\r')
+    for i in range(1, max_iteration):
+        print('Iteration: {} / {}'.format(i, max_iteration))
         batch_x, batch_y_ = dataset.getNextBatch(batch_size)
         feed_dict_tr = {x: batch_x, y_true: batch_y_}
         session.run(optimizer, feed_dict=feed_dict_tr)
         
-        if i % epoch_size == 0:
+        if i % epoch_size == 0:          
             saver.save(session, r'C:\Users\Echoes\Desktop\workspace\DogvsCat\model\model', global_step=i)
             
             epoch = int(i / epoch_size)
