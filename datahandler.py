@@ -10,7 +10,7 @@ import cv2
 class Dataset(object):
     num_processes = 5
     
-    def __init__(self, data_folder, train_portion=0.9, mean=[0., 0., 0.], shuffle=True):
+    def __init__(self, data_folder, train_portion=0.99, mean=[0., 0., 0.], shuffle=True):
         self.data_folder = data_folder
         self.file_names = listdir(data_folder)
         self.data_size = len(self.file_names)

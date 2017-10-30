@@ -38,7 +38,7 @@ if __name__=='__main__':
     RGB = [105.354, 114.966, 123.656]
     
     print('Loading dataset from', train_dir)
-    dataset = Dataset(train_dir, 0.95, mean=RGB, shuffle=True)
+    dataset = Dataset(train_dir, 0.9996, mean=RGB, shuffle=True)
 
     # Layer network
     print('Creating network...')
@@ -96,7 +96,7 @@ if __name__=='__main__':
     
     # Load pre-trained model if available
     session = tf.InteractiveSession()
-    saver = tf.train.import_meta_graph('model/model-999.meta')
+    saver = tf.train.import_meta_graph('model/model-3300.meta')
     checkpoint = tf.train.get_checkpoint_state('model')
     if checkpoint and checkpoint.model_checkpoint_path:
         saver.restore(session, checkpoint.model_checkpoint_path)
@@ -107,12 +107,12 @@ if __name__=='__main__':
     # Train
     print('Training...')
     batch_size = 10
-    epoch_size = 100
+    epoch_size = 50
     max_iteration = 100000
     feed_dict_val = {x: dataset.valid_x, y_true: dataset.valid_y_}
     log_file = open('model/log.csv', 'w')
     log_file.write('Epoch, tr_acc, vl_acc, vl_loss\n')
-    for i in range(1, max_iteration):
+    for i in range(3301, max_iteration):
         print('Iteration: {} / {}'.format(i, max_iteration))
         batch_x, batch_y_ = dataset.getNextBatch(batch_size)
         feed_dict_tr = {x: batch_x, y_true: batch_y_}
